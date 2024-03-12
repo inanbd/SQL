@@ -1,0 +1,42 @@
+--SELECT * FROM INFORMATION_SCHEMA.TABLES
+
+--SELECT *
+--FROM INFORMATION_SCHEMA.COLUMNS
+--WHERE TABLE_NAME = N'CustomerCompany'
+
+
+DECLARE @tables TABLE (
+    Name SYSNAME
+); 
+DECLARE @tableName SYSNAME;
+DECLARE @sql NVARCHAR(4000);
+
+INSERT INTO @tables
+SELECT i.table_name
+FROM INFORMATION_SCHEMA.COLUMNS i
+WHERE i.column_name = 'CompanyId';
+
+DECLARE cur CURSOR LOCAL FAST_FORWARD
+FOR
+SELECT Name
+FROM @tables;
+
+OPEN cur;
+
+FETCH NEXT FROM cur
+INTO @tableName;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    --SET @sql = N'ALTER TABLE ' + QUOTENAME(@tableName) + N' ADD new_col varchar(8);';
+    --SET @sql = @sql + N'UPDATE ' + QUOTENAME(@tableName) + N' SET vv = ''B9A56BFB-D63E-ABBA-9456-8B1EC65F844F''';
+	 SET @sql = 'select * from '+ QUOTENAME(@tableName)
+
+    EXEC sp_executesql @sql;
+
+    FETCH NEXT FROM cur
+    INTO @tableName;    
+END
+
+CLOSE cur;
+DEALLOCATE cur;
